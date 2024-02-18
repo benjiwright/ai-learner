@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import random
 
 # 70,000 greyscale clothing images. 60k training img & 10k test img.
 data = tf.keras.datasets.fashion_mnist
@@ -57,28 +58,42 @@ print(classifications[0])
 # label for clothing at idx 0 is 9
 print(test_labels[0])
 
+
 ########################################################################################################################
 # Having fun with output
 ########################################################################################################################
 
+def image_details(classification, idx):
+    # possible labels
+    labels_array = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
+                    "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"]
 
-# Labels array
-labels_array = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
-                "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"]
+    # Sort the classifications array in descending order and get the indices of the top two values
+    top_indices = np.argsort(classification)[::-1][:2]
 
-# Get the index of the maximum value in the classifications array
-max_index = np.argmax(classifications[0])
+    # Get the top two maximum values in the classifications array
+    top_values = classification[top_indices]
 
-# Get the maximum value in the classifications array
-max_value = classifications[0][max_index]
+    # Get the corresponding labels
+    predicted_labels = [labels_array[i] for i in top_indices]
 
-# Get the label corresponding to the max_index
-predicted_label = labels_array[max_index]
+    print(f"With {top_values[0] * 100:.2f}% confidence, the image maps to label: {predicted_labels[0]}\n"
+          f"My second best guess is with {top_values[1] * 100:.2f}% confidence, "
+          f"the image maps to label: {predicted_labels[1]}\n")
 
-# Print the result
-print(f"With {max_value * 100:.2f}% confidence, the image maps to label: {predicted_label}")
+    # Display the image at index
+    plt.imshow(test_images[idx], cmap='gray')
+    plt.axis('off')
+    plt.show()
 
-# Display the image at index 0
-plt.imshow(test_images[0], cmap='gray')
-plt.axis('off')  # Hide axis
-plt.show()
+
+image_details(classifications[0], 0)
+
+# Loop 5 times to make 5 random guesses
+for _ in range(5):
+    # Get a random index within the range of the array
+    random_index = random.randint(0, classifications.shape[0] - 1)
+
+    # Call image_details function to display image details
+    image_details(classifications[random_index], random_index)
+
