@@ -3,13 +3,24 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import random
 
+
+class myCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs={}):
+        if logs.get('accuracy') > 0.925:
+            print("\nReached desired accuracy. Stopping training.")
+            self.model.stop_training = True
+
+
+callback = myCallback()
+
 # 70,000 greyscale clothing images. 60k training img & 10k test img.
 data = tf.keras.datasets.fashion_mnist
 
 # load_data
 # img: 28x28 pixel arrays
 # lbl: 0-9 aka categories of clothes
-(training_images, training_labels), (test_images, test_labels) = data.load_data()
+((training_images, training_labels),
+ (test_images, test_labels)) = data.load_data()
 
 # each pixel is 0-255 grayscale. This will normalize the data. (get values closer)
 training_images = training_images / 255.0
@@ -35,11 +46,10 @@ model.compile(
 )
 
 # fit img to label
-model.fit(training_images, training_labels, epochs=5)
+model.fit(training_images, training_labels, epochs=50, callbacks=[callback])
 
 # pass 10k img to trained model to evaluate
-model.evaluate(test_images, test_labels)
-
+# model.evaluate(test_images, test_labels)
 classifications = model.predict(test_images)
 
 # values of the 10 output neurons with confidence
@@ -96,4 +106,3 @@ for _ in range(5):
 
     # Call image_details function to display image details
     image_details(classifications[random_index], random_index)
-
